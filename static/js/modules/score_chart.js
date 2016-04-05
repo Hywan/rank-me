@@ -222,6 +222,9 @@ function doDraw(container) {
 }
 
 function highlighter(elems) {
+    var previousD = null;
+    var computeSkill = function(skill) { return Math.round(skill * 100) / 100; };
+
     elems.each(function() {
         d3.select(this)
             .attr('data-player', function(d) { return d.name; })
@@ -229,12 +232,20 @@ function highlighter(elems) {
             .on('mouseout', unhighlight)
             .append('title')
             .text(function(d) {
+                if (null === previousD) {
+                    previousD = d;
+                }
+
                 if(d.value) {
                     d = d.value;
                 } else if(d.values) {
                     d = d.values[d.values.length - 1];
                 }
-                return 'Skill : ' + (Math.round(d.skill * 100) / 100) + '\r\nPosition : ' + d.position;
+
+                var skill = computeSkill(d.skill);
+
+                return 'Skill: ' + skill + '(Δ ' + (skill - computeSkill(previousD.skill)) + ')\r\n' +
+                    'Position: ' + d.position + '(Δ ' + (d.position - previousD.position) + ')';
             })
     });
 }
